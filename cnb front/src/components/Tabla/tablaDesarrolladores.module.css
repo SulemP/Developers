@@ -1,0 +1,45 @@
+.table_list{
+    flex: 2;
+}
+
+.table{
+    width: 90%;
+    margin-left: 5%;
+    color: black;
+}
+
+.campos{
+    background-color: var(--blue);
+}
+
+tbody tr:nth-child(odd) {
+    background-color: lightgrey; /* Color de fondo para filas impares */
+}
+
+tbody tr:nth-child(even) {
+    background-color: white; /* Color de fondo para filas pares */
+}
+
+tbody tr{
+    height: 50px;
+}
+
+.options{
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 10px;
+}
+
+.update{
+    background-color: var(--blue);
+    border: none;
+    height: 30px;
+    width: 70px;
+}
+
+.delete{
+    background-color: red;
+    border: none;
+    height: 30px;
+    width: 70px;
+}
