@@ -3,25 +3,49 @@ import Style from './tablaDesarrolladores.module.css'
 import axios from "axios";
 import FormularioEditar from "../FormularioEditar/FormularioEditar"
 import { Modal } from "@mui/material";
+import Swal from 'sweetalert2';
 
 export default function Desarrolles() {
 
-    // const{desarrolladores, getDev} =props
-    // console.log('tabla',desarrolladores)
-    // console.log('getDev', getDev)
     const[desarrolladores, setDesarrolladores] = useState([])
 
     useEffect(() => {
         axios.get("http://localhost:3001/desarrolladores/getDesarrolladores").then((response) => {
             setDesarrolladores(response.data)
-        })
+        })  
     }, []) 
 
     const handleDelete = (idDesarrollador) => {
-        axios.delete(`http://localhost:3001/desarrolladores/deleteDesarrollador/${idDesarrollador}`)
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`http://localhost:3001/desarrolladores/deleteDesarrollador/${idDesarrollador}`)
+                    .then(() => {
+                        Swal.fire('¡Eliminado!', 'El desarrollador ha sido eliminado correctamente.', 'success');
+                        axios.get("http://localhost:3001/desarrolladores/getDesarrolladores")
+                        .then((response) => {
+                            setDesarrolladores(response.data);
+                        })
+                        .catch((error) => {
+                            console.error('Error al obtener la lista de desarrolladores después de eliminar:', error);
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error al eliminar el desarrollador:', error);
+                        Swal.fire('¡Error!', 'Hubo un problema al intentar eliminar el desarrollador.', 'error');
+                    });
+            }
+        });
     }
 
-    
     const [modal, setModal] = useState(false)
     const [desarrolladorEdit, setDesarrolladorEdit] = useState(false)
 
@@ -71,6 +95,9 @@ export default function Desarrolles() {
                 <Modal open={modal} onClose={handleCloseModal}>
                     <FormularioEditar
                         desarrollador={desarrolladorEdit}
+                        handleCloseModal={handleCloseModal}
+                        getDesarrolladores={desarrolladores}
+                        setDesarrolladores={setDesarrolladores}
                     />
                 </Modal>
 

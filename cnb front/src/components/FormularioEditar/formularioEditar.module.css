@@ -2,6 +2,14 @@
     flex: 1;
     margin: auto;
     padding: 3%;
+    width: 30%;
+    background-color: lightgrey;
+    margin-top: 10%;
+}
+
+.close{
+    display: flex;
+    justify-content: space-around;
 }
 
 .form{

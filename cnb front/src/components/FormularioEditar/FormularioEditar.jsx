@@ -1,10 +1,13 @@
 import React, {useState} from "react";
 import Style from './formularioEditar.module.css'
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 export default function Formulario(props) {
 
-    const{desarrollador} = props
+    const{desarrollador, handleCloseModal, getDesarrolladores, setDesarrolladores} = props
+
+    console.log('getDesarrolladores', getDesarrolladores)
     
     const [nuevoDesarrollador, setNuevoDesarrollador] = useState({
         idDesarrollador: desarrollador.id,
@@ -28,7 +31,7 @@ export default function Formulario(props) {
         });
     }
 
-    const handleCreate = () => {
+    const handleEdit = () => {
         const errores = {}
         let hayErrores = false
 
@@ -52,7 +55,39 @@ export default function Formulario(props) {
             return
         }
 
-        axios.put(`http://localhost:3001/desarrolladores/updateDesarrollador/${nuevoDesarrollador.idDesarrollador}`, nuevoDesarrollador)
+        Swal.fire({
+            title: '¿Estás seguro?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, editar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.put(`http://localhost:3001/desarrolladores/updateDesarrollador/${nuevoDesarrollador.idDesarrollador}`, nuevoDesarrollador)
+                    .then(() => {
+                        Swal.fire('¡Editado!', 'El desarrollador ha sido editado correctamente.', 'success');
+                        axios.get("http://localhost:3001/desarrolladores/getDesarrolladores")
+                        .then((response) => {
+                            setDesarrolladores(response.data);
+                        })
+                        .catch((error) => {
+                            console.error('Error al obtener la lista de desarrolladores después de editar:', error);
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error al editar el desarrollador:', error);
+                        Swal.fire('¡Error!', 'Hubo un problema al intentar editar el desarrollador.', 'error');
+                    });
+            }
+        })
+
+        .catch((error) => {
+            console.error('Error creating developer:', error);
+        });
+
+        handleCloseModal()
 
         setNuevoDesarrollador({
             idDesarrollador:'',
@@ -73,7 +108,11 @@ export default function Formulario(props) {
     return (
 
         <div className={Style.tabla_form}>
-            <h2 style={{textAlign:'left', color:'black'}}>Datos</h2>
+            <div className={Style.close}>
+                <h2 style={{textAlign:'left', color:'black'}}>Datos</h2>
+                <p onClick={handleCloseModal}>X</p>  
+            </div>
+
             <div className={Style.form}>
                 <input 
                     placeholder={error.name ? error.name : "Nombre"} 
@@ -97,7 +136,7 @@ export default function Formulario(props) {
                     onChange={handleChange} 
                     className={error.skills ? Style.inputError: ''}
                 />
-                <button onClick={handleCreate}>Guardar</button>
+                <button onClick={handleEdit}>Guardar</button>
             </div>
 
         </div>
